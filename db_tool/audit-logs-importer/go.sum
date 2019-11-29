@@ -1,0 +1,6 @@
+github.com/gocarina/gocsv v0.0.0-20191122093448-c6a9c812ac26 h1:FkMqYZXw0FNZjZKz6JjjyXKxWdqV45OZ4PlcDyu3QFo=
+github.com/gocarina/gocsv v0.0.0-20191122093448-c6a9c812ac26/go.mod h1:/oj50ZdPq/cUjA02lMZhijk5kR31SEydKyqah1OgBuo=
+github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
+github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/mattn/go-sqlite3 v1.12.0 h1:u/x3mp++qUxvYfulZ4HKOvVO0JWhk7HtE8lWhbGz/Do=
+github.com/mattn/go-sqlite3 v1.12.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
