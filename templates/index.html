@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock title %}
+{% block content %}
+<h2>Coming Soon!</h2>
+
+
+<div>
+	<h2>Look up an album!</h2>
+	<form action="/query_db" method="POST">
+	    <label for="album_name">Album Name</label>
+		<input id="album_name" type="text" name="album_name">
+		<input type="submit" name="submit">
+
+</div>
+{% endblock content %}
