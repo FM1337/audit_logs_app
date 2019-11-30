@@ -91,7 +91,21 @@ def getLogs(log_type):
 			statement += " AND duration LIKE ? || '%' "
 			args.append(duration)
 	else:
-		statement += " Windows_Logs"
+		keywords = "" if flask.request.args.get('keywords', type=str) is None else flask.request.args.get('keywords', type=str)
+		date_time = "" if flask.request.args.get('date_time', type=str) is None else flask.request.args.get('date_time', type=str)
+		source = "" if flask.request.args.get('source', type=str) is None else flask.request.args.get('source', type=str)
+
+		event_id = 0 if flask.request.args.get('event_id', type=int) is None else flask.request.args.get('event_id', type=int)
+		use_event_id = True if flask.request.args.get('event_id', type=int) is not None else False
+
+		task_category = "" if flask.request.args.get('category', type=str) is None else flask.request.args.get('category', type=str)
+		task_description = "" if flask.request.args.get('description', type=str) is None else flask.request.args.get('description', type=str)
+
+		args = [keywords, date_time, task_category, task_description, source]
+		statement += " Windows_Logs WHERE keywords LIKE '%' || ? || '%' AND date_time LIKE '%' || ? || '%' AND task_category LIKE '%' || ? || '%' AND task_description LIKE '%' || ? || '%' AND source LIKE '%' || ? || '%'"
+		if use_event_id:
+			statement += ' AND event_id = ?'
+			args.append(event_id)
 	rows = c.execute(statement, args).fetchone()
 	statement = statement.replace("count(*)", "*")
 	pages = math.ceil(rows[0] / 30)
