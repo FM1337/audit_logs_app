@@ -1,15 +1,54 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock title %}
 {% block content %}
-<h2>Coming Soon!</h2>
-
-
+<h2>Audit Logs!</h2>
+<p>There are currently ((total_logs)) records:</p>
+<ul>
+	<li>Windows: ((windows_logs_count))</li>
+	<li>Linux: ((linux_logs_count))</li>
+	<li>Router: ((router_logs_count))</li>
+</ul>
+<records-chart v-if="$root.total_logs > 0" v-cloak></records-chart>
+<log-records inline-template class="log-records" v-cloak>
 <div>
-	<h2>Look up an album!</h2>
-	<form action="/query_db" method="POST">
-	    <label for="album_name">Album Name</label>
-		<input id="album_name" type="text" name="album_name">
-		<input type="submit" name="submit">
+		<nav>
+		<paginate
+			:page-count="pages"
+			:click-handler="paging"
+			:prev-text="'Prev'"
+			v-model="page"
+			:next-text="'Next'"
+			:prev-class="'page-item'"
+			:next-class="'page-item'"
+			:prev-link-class="'page-link'"
+			:next-link-class="'page-link'"
+			:container-class="'pagination justify-content-center'"
+			:page-class="'page-item'"
+			:page-link-class="'page-link'"
+			>
+			</paginate>
+		</nav>
+		<table class="table">
+			<thead>
+				<tr>
+				<th scope="col">#</th>
+				<th scope="col">Log Type</th>
+				<th scope="col">Linux Log ID</th>
+				<th scope="col">Windows Log ID</th>
+				<th scope="col">Router Log ID</th>
+				</tr>
+			</thead>
+		<tbody>
+			<tr v-for="record in records">
+				<th scope="row">((record.id))</th>
+				<td>((record.log_type))</td>
+				<td>((record.linux_log_id))</td>
+				<td>((record.windows_log_id))</td>
+				<td>((record.router_log_id))</td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+</log-records>
 
-</div>
 {% endblock content %}
