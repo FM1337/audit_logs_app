@@ -1,6 +1,7 @@
 # encoding=utf8
 import flask
 import os
+import math
 import sqlite3
 import json
 
@@ -22,30 +23,112 @@ def getLogs(log_type):
 	if log_type not in acceptable_types:
 		return "Invalid query!"
 	page = 1
-	ll_Type = ""
+	statement = "select count(*) from"
 	if flask.request.args.get('page', type=int) != None:
 		page = flask.request.args.get('page', type=int)
-	if flask.request.args.get('type', type=str) != None:
-		ll_Type = flask.request.args.get('type', type=str)
 	pages = 1
 	rows = 0
 	conn = sqlite3.connect("logs.db")
 	c = conn.cursor()
 	if log_type == "records":
-		rows = c.execute("select count(*) from Log_Records").fetchone()
+		statement += " Log_Records"
+		rows = c.execute(statement).fetchone()
 	elif log_type == "linux":
-		if ll_Type != "":
-			rows = c.execute("select count(*) from Linux_Logs WHERE log_type = ?", [ll_Type]).fetchone()
-		else:
-			rows = c.execute("select count(*) from Linux_Logs").fetchone()
+		ll_Type = ""
+		date_time = ""
+		data = ""
+		if flask.request.args.get('type', type=str) != None:
+			ll_Type = flask.request.args.get('type', type=str)
+		if flask.request.args.get('date_time', type=str) != None:
+			date_time = flask.request.args.get('date_time', type=str)
+		if flask.request.args.get('data', type=str) != None:
+			data = flask.request.args.get('data', type=str)
+		args = [ll_Type, date_time, data]
+		statement += " Linux_Logs WHERE log_type LIKE ? || '%' AND date_time LIKE ? || '%' AND data LIKE '%' || ? || '%'"
+		rows = c.execute(statement, args).fetchone()
+		statement = statement.replace("count(*)", "*")
 	elif log_type == "router":
-		rows = c.execute("select count(*) from Router_Logs").fetchone()
+		sip = ""
+		if flask.request.args.get('sip', type=str) != None:
+			sip = flask.request.args.get('sip', type=str)
+		dip = ""
+		if flask.request.args.get('dip', type=str) != None:
+			dip = flask.request.args.get('dip', type=str)
+		sport = 0
+		use_sport = False
+		dport = 0
+		use_dport = False
+		proto = 0
+		use_proto = False
+		packets = 0
+		use_packets = False
+		bytess = 0
+		use_bytess = False
+		start_time = ""
+		if flask.request.args.get('stime', type=str) != None:
+			start_time = flask.request.args.get('stime', type=str)
+		duration = 0.0
+		use_duration = False
+		end_time = ""
+		if flask.request.args.get('etime', type=str) != None:
+			end_time = flask.request.args.get('etime', type=str)
+		sensor = ""
+		if flask.request.args.get('sensor', type=str) != None:
+			sensor = flask.request.args.get('sensor', type=str)
+		flags = ""
+		if flask.request.args.get('flags', type=str) != None:
+			flags = flask.request.args.get('flags', type=str)
+		if flask.request.args.get('sport', type=int) != None:
+			sport = flask.request.args.get('sport', type=int)
+			use_sport = True
+		if flask.request.args.get('dport', type=int) != None:
+			dport = flask.request.args.get('dport', type=int)
+			use_dport = True
+		if flask.request.args.get('proto', type=int) != None:
+			proto = flask.request.args.get('proto', type=int)
+			use_proto = True
+		if flask.request.args.get('packets', type=int) != None:
+			packets = flask.request.args.get('packets', type=int)
+			use_packets = True
+		if flask.request.args.get('bytes', type=int) != None:
+			bytess = flask.request.args.get('bytes', type=int)
+			use_bytess = True
+		if flask.request.args.get('duration', type=float) != None:
+			duration = flask.request.args.get('duration', type=float)
+			use_duration = True
+		statement += " Router_Logs WHERE source_address LIKE ? || '%' AND destination_address LIKE ? || '%' AND start_time LIKE ? || '%' AND end_time LIKE ? || '%' AND sensor LIKE ? || '%' AND flags like ? || '%'"
+
+		args = [sip, dip, start_time, end_time, sensor, flags]
+
+		if use_sport:
+			statement += " AND source_port = ?"
+			args.append(sport)
+		if use_dport:
+			statement += " AND destination_port = ?"
+			args.append(dport)
+		if use_proto:
+			statement += " AND protocol = ?"
+			args.append(proto)
+		if use_packets:
+			statement += " AND packets = ?"
+			args.append(packets)
+		if use_bytess:
+			statement += " AND bytes = ?"
+			args.append(bytess)
+		if use_duration:
+			statement += " AND duration LIKE ? || '%' "
+			args.append(duration)
+
+		rows = c.execute(statement, args).fetchone()
+		statement = statement.replace("count(*)", "*")
 	else:
-		rows = c.execute("select count(*) from Windows_Logs").fetchone()
-	pages = round(rows[0] / 30)
+		statement += " Windows_Logs"
+		rows = c.execute(statement).fetchone()
+		statement = statement.replace("count(*)", "*")
+	pages = math.ceil(rows[0] / 30)
+	offset = 0
 	if (page > pages):
 		page = 1
-	offset = 0
 	if (page > 1):
 		offset = (page * 30) - 30
 	data_json = []
@@ -61,10 +144,8 @@ def getLogs(log_type):
 			}
 			data_json.append(j)
 	elif log_type == "linux":
-		if ll_Type != "":
-			data = c.execute("select * from Linux_Logs WHERE log_type = ? LIMIT 30 OFFSET {};".format(offset), [ll_Type]).fetchall()
-		else:
-			data = c.execute("select * from Linux_Logs LIMIT 30 OFFSET {};".format(offset)).fetchall()
+		statement += " LIMIT 30 OFFSET {};".format(offset)
+		data = c.execute(statement, args).fetchall()
 		for d in data:
 			j = {
 				'id': d[0],
@@ -74,7 +155,8 @@ def getLogs(log_type):
 			}
 			data_json.append(j)
 	elif log_type == "router":
-		data = c.execute("select * from Router_Logs LIMIT 30 OFFSET {};".format(offset)).fetchall()
+		statement += " LIMIT 30 OFFSET {};".format(offset)
+		data = c.execute(statement, args).fetchall()
 		for d in data:
 			j = {
 				'id': d[0],
@@ -147,6 +229,33 @@ def log_stats(log_type):
 		}
 		for row in c.execute("select distinct log_type from Linux_Logs").fetchall():
 			stats['type_counts'][row[0]] = c.execute("select count(*) from Linux_Logs where log_type = '" + row[0] + "';").fetchone()[0]
+	else:
+		stats = {
+			"unique_ips": [],
+			"unique_ports": [],
+			"total_bytes": c.execute("select sum(bytes) from Router_Logs").fetchone()[0],
+			"total_packets": c.execute("select sum(packets) from Router_Logs").fetchone()[0]
+		}
+		tmp = []
+		for row in c.execute("select source_address, destination_address from Router_Logs;").fetchall():
+			if row[0] not in tmp:
+				tmp.append(row[0])
+				stats['unique_ips'].append({
+					"ip": row[0],
+					"source_ip_count": c.execute("select count(*) from Router_Logs where source_address = ?", [row[0]]).fetchone()[0],
+					"destination_ip_count": c.execute("select count(*) from Router_Logs where destination_address = ?", [row[0]]).fetchone()[0],
+					"total_packets": c.execute("select sum(packets) from Router_Logs where destination_address = ? OR source_address = ?", [row[0], row[0]]).fetchone()[0],
+					"total_bytes": c.execute("select sum(bytes) from Router_Logs where destination_address = ? OR source_address = ?", [row[0], row[0]]).fetchone()[0]
+				})
+
+			if row[1] not in tmp:
+				tmp.append(row[1])
+				stats['unique_ips'].append({
+					"ip": row[1],
+					"source_ip_count": c.execute("select count(*) from Router_Logs where source_address = ?", [row[1]]).fetchone()[0],
+					"destination_ip_count": c.execute("select count(*) from Router_Logs where destination_address = ?", [row[1]]).fetchone()[0]
+				})
+				
 
 	return flask.jsonify({'stats': stats})
 
