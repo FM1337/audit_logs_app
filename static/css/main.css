@@ -18,3 +18,12 @@ main { padding-top: 5rem; }
 .click {
 	cursor: pointer;
 }
+
+#descriptionModalLabel,
+.modal-body {
+	color: black;
+}
+
+#description-text{
+	white-space: pre-wrap; 
+}

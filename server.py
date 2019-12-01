@@ -289,7 +289,7 @@ def view_log(log_type, log_id):
 				'date_time': data[2],
 				'data': json.loads(data[3])
 		}
-	return flask.jsonify({"result": {"error": False, "result": log}})
+	return flask.jsonify({"result": {"error": False, "log": log}})
 
 
 

@@ -71,6 +71,55 @@ Vue.component('log-records', {
 	}
 })
 
+Vue.component('windows-logs', {
+	data() {
+		return {
+			"logs": null,
+			"searchQuery": "",
+			"pages": 0,
+			"page": 1
+		}
+	},
+	methods: {
+		fetch: function () {
+			axios.get('/api/logs/windows?page=' + this.page + '&' + this.searchQuery).then(response => {
+				this.logs = response.data.data
+				this.pages = response.data.total_pages
+			})
+		},
+		paging: function (pageNum) {
+			this.page = pageNum
+			this.fetch()
+		},
+		search: function () {
+			let keywords = $("#keywords").val()
+			let date_time = $("#date_time").val()
+			let source = $("#source").val()
+			let event_id = $("#event_id").val()
+			let category = $("#category").val()
+			let description = $("#description").val()
+
+			this.searchQuery = "keywords=" + keywords + "&date_time=" + date_time + "&source=" + source + "&event_id=" + event_id + "&category=" + category + "&description=" + description
+ 			this.page = 1
+			this.fetch()
+		},
+		view_description: function (id) {
+			axios.get('/api/log_view/windows/' + id).then(response => {
+				$("#current-event").text(id)
+				$('#descriptionModal').modal({
+					show: true
+				})
+				$("#description-text").html(response.data.result.log.task_description)
+			})
+
+		}
+	},
+	mounted() {
+		this.fetch()
+	}
+})
+
+
 Vue.component('router-logs', {
 	data() {
 		return {

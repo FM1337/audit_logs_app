@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Windows Logs{% endblock title %}
+{% block content %}
+<h2>Windows Logs</h2>
+
+<windows-logs inline-template v-cloak class="router-logs">
+	<div>
+		<form class="form">
+		<div class="form-group">
+			<label for="keywords">Keywords</label>
+			<input type="text" class="form-control" id="keywords" placeholder="Audit Success">
+		</div>
+		<div class="form-group">
+			<label for="date_time">Date Time</label>
+			<input type="text" class="form-control" id="date_time" placeholder="9/9/2019 6:12:52 PM">
+		</div>
+		<div class="form-group">
+			<label for="source">Source</label>
+			<input type="text" class="form-control" id="source" placeholder="Microsoft-Windows-Eventlog">
+		</div>
+		<div class="form-group">
+			<label for="event_id">Event ID</label>
+			<input type="number" class="form-control" id="event_id" placeholder="1100">
+		</div>
+		<div class="form-group">
+			<label for="category">Task Category</label>
+			<input type="text" class="form-control" id="category" placeholder="Service shutdown">
+		</div>
+		<div class="form-group">
+			<label for="description">Description</label>
+			<input type="text" class="form-control" id="description" placeholder="">
+		</div>
+		<button @click="search" class="btn btn-success" type="button">Search</button>
+		</form>
+				<nav>
+		<paginate
+			:page-count="pages"
+			:click-handler="paging"
+			:prev-text="'Prev'"
+			v-model="page"
+			:next-text="'Next'"
+			:prev-class="'page-item'"
+			:next-class="'page-item'"
+			:prev-link-class="'page-link'"
+			:next-link-class="'page-link'"
+			:container-class="'pagination justify-content-center'"
+			:page-class="'page-item'"
+			:page-link-class="'page-link'"
+			>
+			</paginate>
+		</nav>
+		<table class="table table-responsive">
+			<thead>
+				<tr>
+				<th scope="col">Log ID</th>
+				<th scope="col">Keywords</th>
+				<th scope="col">Date Time</th>
+				<th scope="col">Source</th>
+				<th scope="col">Event ID</th>
+				<th scope="col">Task Category</th>
+				<th scope="col">Task Description</th>
+				</tr>
+			</thead>
+		<tbody>
+			<tr v-for="log in logs">
+				<th scope="row">((log.id))</th>
+				<td>((log.keywords))</td>
+				<td>((log.date_time))</td>
+				<td>((log.source))</td>
+				<td>((log.event_id))</td>
+				<td>((log.task_category))</td>
+				<td><button @click="view_description(log.id)" class="btn btn-info">View Description</button></td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+</windows-logs>
+
+
+<!-- Modal -->
+<div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="descriptionModalLabel">Viewing Task Description for Event <b id="current-event">#</b></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="description-text"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
