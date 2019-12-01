@@ -126,7 +126,7 @@ Vue.component('linux-logs', {
 			"type": "AVC",
 			"pages": 0,
 			"page": 1,
-			"searchQuery": ""
+			"searchQuery": "",
 		}
 	},
 	methods: {
@@ -134,7 +134,6 @@ Vue.component('linux-logs', {
 			axios.get('/api/logs/linux?type=' + this.type + '&page=' + this.page + '&' + this.searchQuery).then(response => {
 				this.logs = response.data.data
 				this.pages = response.data.total_pages
-				console.log(response.data.data)
 			})
 		},
 		paging: function (pageNum) {
@@ -143,6 +142,7 @@ Vue.component('linux-logs', {
 		},
 		changeFilter: function (filter) {
 			this.type = filter.target.value
+			this.logs = []
 			this.fetch()
 			this.page = 1
 		}

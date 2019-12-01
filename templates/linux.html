@@ -135,17 +135,155 @@
 					<th scope="col">Execve</th>
 					<th scope="col">Serial</th>
 				</tr>
+				<tr v-if="type == 'LOGIN'">
+					<th scope="col">Log ID</th>
+					<th scope="col">Date Time</th>
+					<th scope="col">Auid</th>
+					<th scope="col">Old-Auid</th>
+					<th scope="col">Old-Ses</th>
+					<th scope="col">PID</th>
+					<th scope="col">Res</th>
+					<th scope="col">Ses</th>
+					<th scope="col">Tty</th>
+					<th scope="col">Uid</th>
+					<th scope="col">Serial</th>
+				</tr>
+				<tr v-if="type == 'PATH'">
+						<th scope="col">Log ID</th>
+						<th scope="col">Date Time</th>
+						<th scope="col">Cap Fe</th>
+						<th scope="col">Cap Fi</th>
+						<th scope="col">Cap Fp</th>
+						<th scope="col">Cap Fver</th>
+						<th scope="col">Dev</th>
+						<th scope="col">Inode</th>
+						<th scope="col">Mode</th>
+						<th scope="col">Name</th>
+						<th scope="col">Name Type</th>
+						<th scope="col">Ogid</th>
+						<th scope="col">Ouid</th>
+						<th scope="col">Rdev</th>
+						<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'PROCTITLE'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">Proctitle</th>
+							<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'SERVICE_START' || type == 'SERVICE_STOP'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">Addr</th>
+							<th scope="col">Auid</th>
+							<th scope="col">Comm</th>
+							<th scope="col">Exe</th>
+							<th scope="col">Hostname</th>
+							<th scope="col">PID</th>
+							<th scope="col">Res</th>
+							<th scope="col">ses</th>
+							<th scope="col">Terminal</th>
+							<th scope="col">Uid</th>
+							<th scope="col">Unit</th>
+							<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'SYSCALL'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">A0</th>
+							<th scope="col">A1</th>
+							<th scope="col">A2</th>
+							<th scope="col">A3</th>
+							<th scope="col">Arch</th>
+							<th scope="col">Auid</th>
+							<th scope="col">Comm</th>
+							<th scope="col">Egid</th>
+							<th scope="col">Euid</th>
+							<th scope="col">Exe</th>
+							<th scope="col">Exit</th>
+							<th scope="col">FS Gid</th>
+							<th scope="col">FS Uid</th>
+							<th scope="col">Gid</th>
+							<th scope="col">Items</th>
+							<th scope="col">Key</th>
+							<th scope="col">PID</th>
+							<th scope="col">PPID</th>
+							<th scope="col">Ses</th>
+							<th scope="col">Sgid</th>
+							<th scope="col">Success</th>
+							<th scope="col">Suid</th>
+							<th scope="col">Syscall</th>
+							<th scope="col">Tty</th>
+							<th scope="col">Uid</th>
+							<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'SYSTEM_BOOT'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">Addr</th>
+							<th scope="col">Auid</th>
+							<th scope="col">Comm</th>
+							<th scope="col">Exe</th>
+							<th scope="col">Hostname</th>
+							<th scope="col">PID</th>
+							<th scope="col">Res</th>
+							<th scope="col">ses</th>
+							<th scope="col">Terminal</th>
+							<th scope="col">Uid</th>
+							<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'SYSTEM_RUNLEVEL'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">Addr</th>
+							<th scope="col">Auid</th>
+							<th scope="col">Comm</th>
+							<th scope="col">Exe</th>
+							<th scope="col">Hostname</th>
+							<th scope="col">New Level</th>
+							<th scope="col">Old Level</th>
+							<th scope="col">PID</th>
+							<th scope="col">Res</th>
+							<th scope="col">ses</th>
+							<th scope="col">Terminal</th>
+							<th scope="col">Uid</th>
+							<th scope="col">Serial</th>
+					</tr>
 			</thead>
 		<tbody>
 			<tr v-if="type == 'AVC'" v-for="log in logs">
 				<th scope="row">((log.id))</th>
 				<td>((log.date_time))</td>
-				<td>((log.data.data.avc[0].apparmor[0]))</td>
-				<td>((log.data.data.avc[0].comm[0]))</td>
-				<td>((log.data.data.avc[0].name[0]))</td>
-				<td>((log.data.data.avc[0].operation[0]))</td>
-				<td>((log.data.data.avc[0].pid[0]))</td>
-				<td>((log.data.data.avc[0].profile[0]))</td>
+				<td>
+					<p v-for="avc_data in log.data.data.avc" >
+						<b v-for="something in avc_data.apparmor">((something))</br></b>
+					</p>
+				</td>
+				<td>
+					<p v-for="avc_data in log.data.data.avc" >
+						<b v-for="something in avc_data.comm">((something))</br></b>
+					</p>
+				</td>
+				<td>
+					<p v-for="avc_data in log.data.data.avc" >
+						<b v-for="something in avc_data.name">((something))</br></b>
+					</p>
+				</td>
+				<td>
+					<p v-for="avc_data in log.data.data.avc" >
+						<b v-for="something in avc_data.operation">((something))</br></b>
+					</p>
+				</td>
+				<td>
+					<p v-for="avc_data in log.data.data.avc" >
+						<b v-for="something in avc_data.pid">((something))</br></b>
+					</p>
+				</td>
+				<td>
+					<p v-for="avc_data in log.data.data.avc" >
+						<b v-for="something in avc_data.profile">((something))</br></b>
+					</p>
+				</td>
 				<td>((log.data.serial))</td>
 			</tr>
 			<tr v-if="type == 'BPRM_FCAPS'" v-for="log in logs">
@@ -251,6 +389,184 @@
 							<th scope="row">((log.id))</th>
 							<td>((log.date_time))</td>
 							<td><p v-for="something in log.data.data.execve">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'LOGIN'" v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.login.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.login['old-auid']">((something))</p></td>
+							<td><p v-for="something in log.data.data.login['old-ses']">((something))</p></td>
+							<td><p v-for="something in log.data.data.login.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.login.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.login.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.login.tty">((something))</p></td>
+							<td><p v-for="something in log.data.data.login.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'PATH'" v-for="log in logs" v-cloak>
+						<th scope="row">((log.id))</th>
+						<td>((log.date_time))</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.cap_fe">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.cap_fi">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.cap_fp">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.cap_fver">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.dev">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.inode">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.mode">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.name">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.nametype">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.ogid">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.ouid">((something))</br></b>
+							</p>
+						</td>
+						<td>
+							<p v-for="path_data in log.data.data.path" >
+								<b v-for="something in path_data.rdev">((something))</br></b>
+							</p>
+						</td>
+						<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'PROCTITLE'" v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.proctitle.proctitle">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'SERVICE_START' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.service_start.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.comm">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.uid">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_start.unit">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'SERVICE_STOP' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.service_stop.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.comm">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.uid">((something))</p></td>
+							<td><p v-for="something in log.data.data.service_stop.unit">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'SYSCALL' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.syscall.a0">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.a1">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.a2">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.a3">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.arch">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.comm">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.egid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.euid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.exit">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.fsgid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.fsuid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.gid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.items">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.key">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.ppid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.sgid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.success">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.suid">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.syscall">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.tty">((something))</p></td>
+							<td><p v-for="something in log.data.data.syscall.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'SYSTEM_BOOT' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.system_boot.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.comm">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_boot.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'SYSTEM_RUNLEVEL' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.system_runlevel.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.comm">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel['new-level']">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel['old-level']">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_runlevel.uid">((something))</p></td>
 							<td>((log.data.serial))</td>
 					</tr>
 		</tbody>
