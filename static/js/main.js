@@ -1,6 +1,14 @@
 Vue.component('paginate', VuejsPaginate) 
 
 
+var dynamicColors = function() {
+	var r = Math.floor(Math.random() * 255);
+	var g = Math.floor(Math.random() * 255);
+	var b = Math.floor(Math.random() * 255);
+	return "rgb(" + r + "," + g + "," + b + ")";
+ };
+
+
 Vue.component('records-chart', {
 	extends: VueChartJs.Bar,
 	mounted() {
@@ -26,10 +34,163 @@ Vue.component('records-chart', {
 		},
 			{
 				responsive: true,
-				maintainAspectRatio: false,
+				maintainAspectRatio: true,
 				title: {
 					"text": "Log Counts Per System"
 				},
+		})
+	},
+})
+
+
+Vue.component('linux-records-chart', {
+	extends: VueChartJs.Bar,
+	data() {
+		return {
+		  "stats": [],
+		  "loaded": false,
+		}
+	},
+	mounted() {
+		axios.get('/api/stats/linux').then(response => {
+			this.stats = response.data.stats
+			this.renderChart({
+				labels: ["Log Amount"],
+				datasets: [
+					{
+						"data": [this.stats.type_counts.AVC],
+						"label": "AVC",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.BPRM_FCAPS],
+						"label": "BPRM_FCAPS",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.CRED_ACQ],
+						"label": "CRED_ACQ",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.CRED_DISP],
+						"label": "CRED_DISP",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.CRED_REFR],
+						"label": "CRED_REFR",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.DAEMON_START],
+						"label": "DAEMON_START",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.DAEMON_END],
+						"label": "DAEMON_END",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.DAEMON_ROTATE],
+						"label": "DAEMON_ROTATE",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.EXECVE],
+						"label": "EXECVE",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.KERN_MODULE],
+						"label": "KERN_MODULE",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.LOGIN],
+						"label": "LOGIN",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.PATH],
+						"label": "PATH",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.PROCTITLE],
+						"label": "PROCTITLE",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.SERVICE_START],
+						"label": "SERVICE_START",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.SERVICE_STOP],
+						"label": "SERVICE_STOP",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.SYSCALL],
+						"label": "SYSCALL",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.SYSTEM_BOOT],
+						"label": "SYSTEM_BOOT",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.SYSTEM_RUNLEVEL],
+						"label": "SYSTEM_RUNLEVEL",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.SYSTEM_SHUTDOWN],
+						"label": "SYSTEM_SHUTDOWN",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.USER_ACCT],
+						"label": "USER_ACCT",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.USER_AUTH],
+						"label": "USER_AUTH",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.USER_CMD],
+						"label": "USER_CMD",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.USER_END],
+						"label": "USER_END",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.USER_LOGIN],
+						"label": "USER_LOGIN",
+						"backgroundColor": dynamicColors()
+					},
+					{
+						"data": [this.stats.type_counts.USER_START],
+						"label": "USER_START",
+						"backgroundColor": dynamicColors()
+					},
+				]
+			},
+				{
+					responsive: true,
+					maintainAspectRatio: false,
+					title: {
+						"text": "Log Counts Per System"
+					},
+			})
 		})
 	},
 })
@@ -138,14 +299,23 @@ Vue.component('linux-logs', {
 		},
 		paging: function (pageNum) {
 			this.page = pageNum
+			this.logs = []
 			this.fetch()
 		},
 		changeFilter: function (filter) {
 			this.type = filter.target.value
 			this.logs = []
-			this.fetch()
 			this.page = 1
-		}
+			this.fetch()
+		},
+		search: function () {
+			let date_time = $("#date_time").val()
+			let data = $("#data").val()
+			this.searchQuery = "date_time=" + date_time + "&data=" + data
+			 this.page = 1
+			 this.logs = []
+			this.fetch()
+		},
 	},
 	mounted() {
 		this.fetch()

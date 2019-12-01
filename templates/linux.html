@@ -2,7 +2,7 @@
 {% block title %}Linux Logs{% endblock title %}
 {% block content %}
 <h2>Linux Logs</h2>
-
+<linux-records-chart v-cloak></linux-records-chart>
 <linux-logs inline-template v-cloak class="router-logs">
 	<div>
 				<nav>
@@ -24,6 +24,17 @@
 		</nav>
 		<form class="form">
 				<div class="form-group">
+					<label for="date_time">Date Time</label>
+					<input type="text" class="form-control" id="date_time" placeholder="9/9/2019 6:12:52 PM">
+				</div>
+				<div class="form-group">
+					<label for="data">Data</label>
+					<input type="text" class="form-control" id="data" placeholder="Try column tags and whatnot.">
+				</div>
+				<button @click="search" class="btn btn-success" type="button">Search</button>
+				</form>
+		<form class="form">
+				<div class="form-group">
 					<label for="log_type_filter">Select log types to show</label>
 					<select @change="changeFilter($event)"class="form-control" id="log_type_filter">
 						<option>AVC</option>
@@ -33,7 +44,10 @@
 						<option>CRED_DISP</option>
 						<option>CRED_REFR</option>
 						<option>DAEMON_START</option>
+						<option>DAEMON_END</option>
+						<option>DAEMON_ROTATE</option>
 						<option>EXECVE</option>
+						<option>KERN_MODULE</option>
 						<option>LOGIN</option>
 						<option>PATH</option>
 						<option>PROCTITLE</option>
@@ -42,6 +56,7 @@
 						<option>SYSCALL</option>
 						<option>SYSTEM_BOOT</option>
 						<option>SYSTEM_RUNLEVEL</option>
+						<option>SYSTEM_SHUTDOWN</option>
 						<option>USER_ACCT</option>
 						<option>USER_AUTH</option>
 						<option>USER_CMD</option>
@@ -129,12 +144,37 @@
 				<th scope="col">Version</th>
 				<th scope="col">Serial</th>
 				</tr>
+				<tr v-if="type == 'DAEMON_END'">
+						<th scope="col">Log ID</th>
+						<th scope="col">Date Time</th>
+						<th scope="col">Auid</th>
+						<th scope="col">Op</th>
+						<th scope="col">PID</th>
+						<th scope="col">Res</th>
+						<th scope="col">Subj</th>
+						<th scope="col">Serial</th>
+				</tr>
+				<tr v-if="type == 'DAEMON_ROTATE'">
+						<th scope="col">Log ID</th>
+						<th scope="col">Date Time</th>
+						<th scope="col">Auid</th>
+						<th scope="col">Op</th>
+						<th scope="col">PID</th>
+						<th scope="col">Subj</th>
+						<th scope="col">Serial</th>
+				</tr>
 				<tr v-if="type == 'EXECVE'">
 					<th scope="col">Log ID</th>
 					<th scope="col">Date Time</th>
 					<th scope="col">Execve</th>
 					<th scope="col">Serial</th>
 				</tr>
+				<tr v-if="type == 'KERN_MODULE'">
+						<th scope="col">Log ID</th>
+						<th scope="col">Date Time</th>
+						<th scope="col">Name</th>
+						<th scope="col">Serial</th>
+					</tr>
 				<tr v-if="type == 'LOGIN'">
 					<th scope="col">Log ID</th>
 					<th scope="col">Date Time</th>
@@ -217,7 +257,7 @@
 							<th scope="col">Uid</th>
 							<th scope="col">Serial</th>
 					</tr>
-					<tr v-if="type == 'SYSTEM_BOOT'">
+					<tr v-if="type == 'SYSTEM_BOOT' || type == 'SYSTEM_SHUTDOWN'">
 							<th scope="col">Log ID</th>
 							<th scope="col">Date Time</th>
 							<th scope="col">Addr</th>
@@ -227,7 +267,7 @@
 							<th scope="col">Hostname</th>
 							<th scope="col">PID</th>
 							<th scope="col">Res</th>
-							<th scope="col">ses</th>
+							<th scope="col">Ses</th>
 							<th scope="col">Terminal</th>
 							<th scope="col">Uid</th>
 							<th scope="col">Serial</th>
@@ -244,7 +284,71 @@
 							<th scope="col">Old Level</th>
 							<th scope="col">PID</th>
 							<th scope="col">Res</th>
-							<th scope="col">ses</th>
+							<th scope="col">Ses</th>
+							<th scope="col">Terminal</th>
+							<th scope="col">Uid</th>
+							<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'USER_ACCT' || type == 'USER_AUTH'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">Acct</th>
+							<th scope="col">Addr</th>
+							<th scope="col">Auid</th>
+							<th scope="col">Exe</th>
+							<th scope="col">Grantors</th>
+							<th scope="col">Hostname</th>
+							<th scope="col">Op</th>
+							<th scope="col">PID</th>
+							<th scope="col">Res</th>
+							<th scope="col">Ses</th>
+							<th scope="col">Terminal</th>
+							<th scope="col">Uid</th>
+							<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'USER_CMD'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">Auid</th>
+							<th scope="col">Cmd</th>
+							<th scope="col">Cwd</th>
+							<th scope="col">PID</th>
+							<th scope="col">Res</th>
+							<th scope="col">Ses</th>
+							<th scope="col">Terminal</th>
+							<th scope="col">Uid</th>
+							<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'USER_END' || type == 'USER_START'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">Acct</th>
+							<th scope="col">Addr</th>
+							<th scope="col">Auid</th>
+							<th scope="col">Exe</th>
+							<th scope="col">Grantors</th>
+							<th scope="col">Hostname</th>
+							<th scope="col">Op</th>
+							<th scope="col">PID</th>
+							<th scope="col">Res</th>
+							<th scope="col">Ses</th>
+							<th scope="col">Terminal</th>
+							<th scope="col">Uid</th>
+							<th scope="col">Serial</th>
+					</tr>
+					<tr v-if="type == 'USER_LOGIN'">
+							<th scope="col">Log ID</th>
+							<th scope="col">Date Time</th>
+							<th scope="col">Acct</th>
+							<th scope="col">Addr</th>
+							<th scope="col">Auid</th>
+							<th scope="col">Exe</th>
+							<th scope="col">Hostname</th>
+							<th scope="col">ID</th>
+							<th scope="col">Op</th>
+							<th scope="col">PID</th>
+							<th scope="col">Res</th>
+							<th scope="col">Ses</th>
 							<th scope="col">Terminal</th>
 							<th scope="col">Uid</th>
 							<th scope="col">Serial</th>
@@ -385,10 +489,35 @@
 							<td><p v-for="something in log.data.data.daemon_start.ver">((something))</p></td>
 							<td>((log.data.serial))</td>
 					</tr>
+					<tr v-if="type == 'DAEMON_END'" v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.daemon_end.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_end.op">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_end.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_end.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_end.subj">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'DAEMON_ROTATE'" v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.daemon_rotate.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_rotate.op">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_rotate.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_rotate.subj">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
 					<tr v-if="type == 'EXECVE'" v-for="log in logs">
 							<th scope="row">((log.id))</th>
 							<td>((log.date_time))</td>
 							<td><p v-for="something in log.data.data.execve">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'KERN_MODULE'" v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.kern_module.name">((something))</p></td>
 							<td>((log.data.serial))</td>
 					</tr>
 					<tr v-if="type == 'LOGIN'" v-for="log in logs">
@@ -569,29 +698,122 @@
 							<td><p v-for="something in log.data.data.system_runlevel.uid">((something))</p></td>
 							<td>((log.data.serial))</td>
 					</tr>
+					<tr v-if="type == 'SYSTEM_SHUTDOWN' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.system_shutdown.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.comm">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.system_shutdown.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'USER_ACCT' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.user_acct.acct">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.grantors">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.op">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_acct.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'USER_AUTH' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.user_auth.acct">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.grantors">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.op">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_auth.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'USER_CMD' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.user_cmd.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_cmd.cmd">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_cmd.cwd">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_cmd.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_cmd.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_cmd.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_cmd.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_cmd.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'USER_END' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.user_end.acct">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.grantors">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.op">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_end.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'USER_LOGIN' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.user_login.acct">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.id">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.op">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_login.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+
+					<tr v-if="type == 'USER_START' " v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.user_start.acct">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.addr">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.exe">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.grantors">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.hostname">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.op">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.terminal">((something))</p></td>
+							<td><p v-for="something in log.data.data.user_start.uid">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
 		</tbody>
 		</table>
 	</div>
 </linux-logs>
-
-
-<!-- Modal -->
-<div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="descriptionModalLabel">Viewing Task Description for Event <b id="current-event">#</b></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p id="description-text"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock content %}
