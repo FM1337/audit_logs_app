@@ -90,8 +90,8 @@
 		<tbody>
 			<tr v-for="log in logs">
 				<th scope="row">((log.id))</th>
-				<td>((log.source_address))</td>
-				<td>((log.destination_address))</td>
+				<td class="click" @click="lookupIP($event)">((log.source_address))</td>
+				<td class="click" @click="lookupIP($event)">((log.destination_address))</td>
 				<td>((log.source_port))</td>
 				<td>((log.destination_port))</td>
 				<td>((log.protocol))</td>

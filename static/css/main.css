@@ -13,3 +13,8 @@ main { padding-top: 5rem; }
 .router-logs table{
 	color: white;
 }
+
+
+.click {
+	cursor: pointer;
+}

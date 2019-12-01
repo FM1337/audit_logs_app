@@ -109,6 +109,26 @@ Vue.component('router-logs', {
 				"&etime=" + etime
  			this.page = 1
 			this.fetch()
+		},
+		lookupIP: function (ip) {
+			axios.get("https://geoip.pw/api/" + ip.target.textContent).then(response => {
+				if (response.data.error != null) {
+					alert("Error looking up IP info: " + response.data.error)
+				} else {
+					alert(
+						"IP: " + response.data.ip + "\n" +
+						"Hostname: " + response.data.host + "\n" +
+						"Country: " + response.data.country + "\n" +
+						"Timezone: " + response.data.timezone + "\n" + 
+						"Continent: " + response.data.continent + "\n" +
+						"City: " + response.data.city + "\n" + 
+						"Subdivision: " + response.data.subdivision + "\n" +
+						"Summary: " + response.data.summary + "\n" +
+						"Longitude: " + response.data.longitude + "\n" +
+						"Latitude: " + response.data.latitude
+					)
+				}
+			})
 		}
 	},
 	mounted() {
