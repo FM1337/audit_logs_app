@@ -28,6 +28,17 @@
 			>
 			</paginate>
 		</nav>
+		<form class="form">
+			<div class="form-group">
+				<label for="log_type_filter">Select log types to show</label>
+				<select @change="changeFilter($event)"class="form-control" id="log_type_filter">
+				<option value="all">All</option>
+				<option value="linux">Linux</option>
+				<option value="router">Router</option>
+				<option value="windows">Windows</option>
+				</select>
+			</div>
+		</form>
 		<table class="table">
 			<thead>
 				<tr>

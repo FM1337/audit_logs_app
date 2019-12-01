@@ -59,7 +59,60 @@ Vue.component('log-records', {
 		paging: function (pageNum) {
             this.page = pageNum
             this.fetch()
-        },
+		},
+		changeFilter: function (filter) {
+			this.searchQuery = "type=" + filter.target.value
+			if (filter.target.value == "all") {
+				this.searchQuery = ""
+			}
+			this.fetch()
+			this.page = 1
+		}
+	}
+})
+
+Vue.component('router-logs', {
+	data() {
+		return {
+			"logs": null,
+			"searchQuery": "",
+			"pages": 0,
+			"page": 1
+		}
+	},
+	methods: {
+		fetch: function () {
+			axios.get('/api/logs/router?page=' + this.page + '&' + this.searchQuery).then(response => {
+				this.logs = response.data.data
+				this.pages = response.data.total_pages
+			})
+		},
+		paging: function (pageNum) {
+			this.page = pageNum
+			this.fetch()
+		},
+		search: function () {
+			let sip = $("#sip").val()
+			let dip = $("#dip").val()
+			let dport = $("#sport").val()
+			let sport = $("#dport").val()
+			let protocol = $("#protocol").val()
+			let bytes = $("#bytes").val()
+			let packets = $("#packets").val()
+			let flags = $("#flags").val()
+			let stime = $("#stime").val()
+			let duration = $("#duration").val()
+			let etime = $("#etime").val()
+
+			this.searchQuery = "sip=" + sip + "&dip=" + dip + "&sport=" + sport + "&dport=" + dport + "&protocol=" + protocol +
+				"&bytes=" + bytes + "&packets=" + packets + "&flags=" + flags + "&stime=" + stime + "&duration=" + duration + 
+				"&etime=" + etime
+ 			this.page = 1
+			this.fetch()
+		}
+	},
+	mounted() {
+		this.fetch()
 	}
 })
 

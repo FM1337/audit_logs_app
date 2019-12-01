@@ -62,7 +62,7 @@ def getLogs(log_type):
 		
 		start_time = "" if flask.request.args.get('stime', type=str) is None else flask.request.args.get('stime', type=str)
 		duration = 0.0 if flask.request.args.get('duration', type=float) is None else flask.request.args.get('duration', type=float)
-		use_duration = True if flask.request.args.get('duration', type=int) is not None else False
+		use_duration = True if flask.request.args.get('duration', type=float) is not None else False
 		
 		end_time = "" if flask.request.args.get('etime', type=str) is None else flask.request.args.get('etime', type=str)
 		sensor = "" if flask.request.args.get('sensor', type=str) is None else flask.request.args.get('sensor', type=str)

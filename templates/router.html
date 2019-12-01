@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Router Logs{% endblock title %}
+{% block content %}
+<h2>Router Logs</h2>
+
+<router-logs inline-template v-cloak class="router-logs">
+	<div>
+		<form class="form">
+		<div class="form-group">
+			<label for="sip">Source IP</label>
+			<input type="text" class="form-control" id="sip" placeholder="192.168.1.1">
+		</div>
+		<div class="form-group">
+			<label for="dip">Destination IP</label>
+			<input type="text" class="form-control" id="dip" placeholder="1.1.1.1">
+		</div>
+		<div class="form-group">
+			<label for="sport">Source Port</label>
+			<input type="number" class="form-control" id="sport" placeholder="53">
+		</div>
+		<div class="form-group">
+			<label for="dport">Destination Port</label>
+			<input type="number" class="form-control" id="dport" placeholder="54321">
+		</div>
+		<div class="form-group">
+			<label for="dport">Protocol</label>
+			<input type="number" class="form-control" id="protocol" placeholder="35">
+		</div>
+		<div class="form-group">
+			<label for="packets">Packets</label>
+			<input type="number" class="form-control" id="packets" placeholder="3">
+		</div>
+		<div class="form-group">
+			<label for="bytes">Bytes</label>
+			<input type="number" class="form-control" id="bytes" placeholder="750">
+		</div>
+		<div class="form-group">
+			<label for="flags">Flags</label>
+			<input type="text" class="form-control" id="flags" placeholder="FS">
+		</div>
+		<div class="form-group">
+			<label for="stime">Start Time</label>
+			<input type="text" class="form-control" id="stime" placeholder="2019/11/23T14:38:48.110">
+		</div>
+		<div class="form-group">
+			<label for="duration">Duration</label>
+			<input type="number" class="form-control" id="duration" placeholder="1.300001131">
+		</div>
+		<div class="form-group">
+			<label for="etime">End Time</label>
+			<input type="text" class="form-control" id="etime" placeholder="2019/11/23:14:38:49.110">
+		</div>
+		<button @click="search" class="btn btn-success" type="button">Search</button>
+		</form>
+				<nav>
+		<paginate
+			:page-count="pages"
+			:click-handler="paging"
+			:prev-text="'Prev'"
+			v-model="page"
+			:next-text="'Next'"
+			:prev-class="'page-item'"
+			:next-class="'page-item'"
+			:prev-link-class="'page-link'"
+			:next-link-class="'page-link'"
+			:container-class="'pagination justify-content-center'"
+			:page-class="'page-item'"
+			:page-link-class="'page-link'"
+			>
+			</paginate>
+		</nav>
+		<table class="table table-responsive">
+			<thead>
+				<tr>
+				<th scope="col">Log ID</th>
+				<th scope="col">Source Address</th>
+				<th scope="col">Destination Address</th>
+				<th scope="col">Source Port</th>
+				<th scope="col">Destination Port</th>
+				<th scope="col">Protocol</th>
+				<th scope="col">Packets</th>
+				<th scope="col">Bytes</th>
+				<th scope="col">Flags</th>
+				<th scope="col">Start Time</th>
+				<th scope="col">Duration</th>
+				<th scope="col">End Time</th>
+				<th scope="col">Sensor</th>
+				</tr>
+			</thead>
+		<tbody>
+			<tr v-for="log in logs">
+				<th scope="row">((log.id))</th>
+				<td>((log.source_address))</td>
+				<td>((log.destination_address))</td>
+				<td>((log.source_port))</td>
+				<td>((log.destination_port))</td>
+				<td>((log.protocol))</td>
+				<td>((log.packets))</td>
+				<td>((log.bytes))</td>
+				<td>((log.flags))</td>
+				<td>((log.start_time))</td>
+				<td>((log.duration))</td>
+				<td>((log.end_time))</td>
+				<td>((log.sensor))</td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+</router-logs>
+{% endblock content %}

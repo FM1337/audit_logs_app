@@ -9,6 +9,7 @@ body {
 main { padding-top: 5rem; }
 
 
-.log-records table{
+.log-records table,
+.router-logs table{
 	color: white;
 }
