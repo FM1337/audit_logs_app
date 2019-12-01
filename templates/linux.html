@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% block title %}Linux Logs{% endblock title %}
+{% block content %}
+<h2>Linux Logs</h2>
+
+<linux-logs inline-template v-cloak class="router-logs">
+	<div>
+				<nav>
+		<paginate
+			:page-count="pages"
+			:click-handler="paging"
+			:prev-text="'Prev'"
+			v-model="page"
+			:next-text="'Next'"
+			:prev-class="'page-item'"
+			:next-class="'page-item'"
+			:prev-link-class="'page-link'"
+			:next-link-class="'page-link'"
+			:container-class="'pagination justify-content-center'"
+			:page-class="'page-item'"
+			:page-link-class="'page-link'"
+			>
+			</paginate>
+		</nav>
+		<form class="form">
+				<div class="form-group">
+					<label for="log_type_filter">Select log types to show</label>
+					<select @change="changeFilter($event)"class="form-control" id="log_type_filter">
+						<option>AVC</option>
+						<option>BPRM_FCAPS</option>
+						<option>CONFIG_CHANGE</option>
+						<option>CRED_ACQ</option>
+						<option>CRED_DISP</option>
+						<option>CRED_REFR</option>
+						<option>DAEMON_START</option>
+						<option>EXECVE</option>
+						<option>LOGIN</option>
+						<option>PATH</option>
+						<option>PROCTITLE</option>
+						<option>SERVICE_START</option>
+						<option>SERVICE_STOP</option>
+						<option>SYSCALL</option>
+						<option>SYSTEM_BOOT</option>
+						<option>SYSTEM_RUNLEVEL</option>
+						<option>USER_ACCT</option>
+						<option>USER_AUTH</option>
+						<option>USER_CMD</option>
+						<option>USER_END</option>
+						<option>USER_LOGIN</option>
+						<option>USER_START</option>
+					</select>
+				</div>
+			</form>
+		<table class="table table-responsive">
+			<thead>
+				<tr v-if="type == 'AVC'">
+				<th scope="col">Log ID</th>
+				<th scope="col">Date Time</th>
+				<th scope="col">Apparmor</th>
+				<th scope="col">Comm</th>
+				<th scope="col">Name</th>
+				<th scope="col">Operation</th>
+				<th scope="col">PID</th>
+				<th scope="col">Profile</th>
+				<th scope="col">Serial</th>
+				</tr>
+				<tr v-if="type == 'BPRM_FCAPS'">
+				<th scope="col">Log ID</th>
+				<th scope="col">Date Time</th>
+				<th scope="col">Fe</th>
+				<th scope="col">Fi</th>
+				<th scope="col">Fp</th>
+				<th scope="col">Fver</th>
+				<th scope="col">Old_Pa</th>
+				<th scope="col">Old_Pe</th>
+				<th scope="col">Old_Pi</th>
+				<th scope="col">Old_Pp</th>
+				<th scope="col">Pa</th>
+				<th scope="col">Pe</th>
+				<th scope="col">Pi</th>
+				<th scope="col">Pp</th>
+				<th scope="col">Error</th>
+				<th scope="col">Serial</th>
+				<th scope="col">Text</th>
+				</tr>
+				<tr v-if="type == 'CONFIG_CHANGE'">
+				<th scope="col">Log ID</th>
+				<th scope="col">Date Time</th>
+				<th scope="col">Audit Backlog Limit</th>
+				<th scope="col">Audit Failure</th>
+				<th scope="col">Audit ID</th>
+				<th scope="col">Key</th>
+				<th scope="col">List</th>
+				<th scope="col">Old</th>
+				<th scope="col">Op</th>
+				<th scope="col">Res</th>
+				<th scope="col">Ses</th>
+				<th scope="col">Serial</th>
+				</tr>
+				<tr v-if="type == 'CRED_ACQ' || type =='CRED_DISP' || type == 'CRED_REFR'">
+				<th scope="col">Log ID</th>
+				<th scope="col">Date Time</th>
+				<th scope="col">Acct</th>
+				<th scope="col">Addr</th>
+				<th scope="col">Auid</th>
+				<th scope="col">Exe</th>
+				<th scope="col">Grantors</th>
+				<th scope="col">Hostname</th>
+				<th scope="col">Op</th>
+				<th scope="col">PID</th>
+				<th scope="col">Res</th>
+				<th scope="col">Ses</th>
+				<th scope="col">Terminal</th>
+				<th scope="col">UID</th>
+				<th scope="col">Serial</th>
+				</tr>
+				<tr v-if="type == 'DAEMON_START'">
+				<th scope="col">Log ID</th>
+				<th scope="col">Date Time</th>
+				<th scope="col">Auid</th>
+				<th scope="col">Format</th>
+				<th scope="col">Kernel</th>
+				<th scope="col">Op</th>
+				<th scope="col">PID</th>
+				<th scope="col">Res</th>
+				<th scope="col">Ses</th>
+				<th scope="col">Subj</th>
+				<th scope="col">UID</th>
+				<th scope="col">Version</th>
+				<th scope="col">Serial</th>
+				</tr>
+				<tr v-if="type == 'EXECVE'">
+					<th scope="col">Log ID</th>
+					<th scope="col">Date Time</th>
+					<th scope="col">Execve</th>
+					<th scope="col">Serial</th>
+				</tr>
+			</thead>
+		<tbody>
+			<tr v-if="type == 'AVC'" v-for="log in logs">
+				<th scope="row">((log.id))</th>
+				<td>((log.date_time))</td>
+				<td>((log.data.data.avc[0].apparmor[0]))</td>
+				<td>((log.data.data.avc[0].comm[0]))</td>
+				<td>((log.data.data.avc[0].name[0]))</td>
+				<td>((log.data.data.avc[0].operation[0]))</td>
+				<td>((log.data.data.avc[0].pid[0]))</td>
+				<td>((log.data.data.avc[0].profile[0]))</td>
+				<td>((log.data.serial))</td>
+			</tr>
+			<tr v-if="type == 'BPRM_FCAPS'" v-for="log in logs">
+					<th scope="row">((log.id))</th>
+					<td>((log.date_time))</td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.fe">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.fi">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.fp">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.fver">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.old_pa">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.old_pe">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.old_pi">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.old_pp">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.pa">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.pe">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.pi">((something))</p></td>
+					<td><p v-for="something in log.data.data.bprm_fcaps.pp">((something))</p></td>
+					<td>((log.data.error))</td>
+					<td><p v-for="something in log.data.text">((something))</p></td>
+					<td>((log.data.serial))</td>
+				</tr>
+				<tr v-if="type == 'CONFIG_CHANGE'" v-for="log in logs">
+					<th scope="row">((log.id))</th>
+					<td>((log.date_time))</td>
+					<td><p v-for="something in log.data.data.config_change.audit_backlog_limit">((something))</p></td>
+					<td><p v-for="something in log.data.data.config_change.audit_failure">((something))</p></td>
+					<td><p v-for="something in log.data.data.config_change.auid">((something))</p></td>
+					<td><p v-for="something in log.data.data.config_change.key">((something))</p></td>
+					<td><p v-for="something in log.data.data.config_change.list">((something))</p></td>
+					<td><p v-for="something in log.data.data.config_change.old">((something))</p></td>
+					<td><p v-for="something in log.data.data.config_change.op">((something))</p></td>
+					<td><p v-for="something in log.data.data.config_change.res">((something))</p></td>
+					<td><p v-for="something in log.data.data.config_change.ses">((something))</p></td>
+					<td>((log.data.serial))</td>
+				</tr>
+				<tr v-if="type == 'CRED_ACQ'" v-for="log in logs">
+					<th scope="row">((log.id))</th>
+					<td>((log.date_time))</td>
+					<td><p v-for="something in log.data.data.cred_acq.acct">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.addr">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.auid">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.exe">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.grantors">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.hostname">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.op">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.pid">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.res">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.ses">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.terminal">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_acq.uid">((something))</p></td>
+					<td>((log.data.serial))</td>
+				</tr>
+				<tr v-if="type == 'CRED_DISP'" v-for="log in logs">
+					<th scope="row">((log.id))</th>
+					<td>((log.date_time))</td>
+					<td><p v-for="something in log.data.data.cred_disp.acct">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.addr">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.auid">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.exe">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.grantors">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.hostname">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.op">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.pid">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.res">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.ses">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.terminal">((something))</p></td>
+					<td><p v-for="something in log.data.data.cred_disp.uid">((something))</p></td>
+					<td>((log.data.serial))</td>
+				</tr>
+				<tr v-if="type == 'CRED_REFR'" v-for="log in logs">
+						<th scope="row">((log.id))</th>
+						<td>((log.date_time))</td>
+						<td><p v-for="something in log.data.data.cred_refr.acct">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.addr">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.auid">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.exe">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.grantors">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.hostname">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.op">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.pid">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.res">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.ses">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.terminal">((something))</p></td>
+						<td><p v-for="something in log.data.data.cred_refr.uid">((something))</p></td>
+						<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'DAEMON_START'" v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.daemon_start.auid">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.format">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.kernel">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.op">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.pid">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.res">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.ses">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.subj">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.uid">((something))</p></td>
+							<td><p v-for="something in log.data.data.daemon_start.ver">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+					<tr v-if="type == 'EXECVE'" v-for="log in logs">
+							<th scope="row">((log.id))</th>
+							<td>((log.date_time))</td>
+							<td><p v-for="something in log.data.data.execve">((something))</p></td>
+							<td>((log.data.serial))</td>
+					</tr>
+		</tbody>
+		</table>
+	</div>
+</linux-logs>
+
+
+<!-- Modal -->
+<div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="descriptionModalLabel">Viewing Task Description for Event <b id="current-event">#</b></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="description-text"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

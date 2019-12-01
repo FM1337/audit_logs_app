@@ -119,6 +119,38 @@ Vue.component('windows-logs', {
 	}
 })
 
+Vue.component('linux-logs', {
+	data() {
+		return {
+			"logs": null,
+			"type": "AVC",
+			"pages": 0,
+			"page": 1,
+			"searchQuery": ""
+		}
+	},
+	methods: {
+		fetch: function () {
+			axios.get('/api/logs/linux?type=' + this.type + '&page=' + this.page + '&' + this.searchQuery).then(response => {
+				this.logs = response.data.data
+				this.pages = response.data.total_pages
+				console.log(response.data.data)
+			})
+		},
+		paging: function (pageNum) {
+			this.page = pageNum
+			this.fetch()
+		},
+		changeFilter: function (filter) {
+			this.type = filter.target.value
+			this.fetch()
+			this.page = 1
+		}
+	},
+	mounted() {
+		this.fetch()
+	}
+})
 
 Vue.component('router-logs', {
 	data() {
