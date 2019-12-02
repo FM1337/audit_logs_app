@@ -188,53 +188,60 @@ def log_stats(log_type):
 		stats = {
 			"successful_audits": c.execute("select count(*) from Windows_Logs where Keywords LIKE '%Success%'").fetchone()[0],
 			"failed_audits": c.execute("select count(*) from Windows_Logs where Keywords LIKE '%Failure%'").fetchone()[0],
-			"event_id_totals": {},
-			"task_category_totals": {}
 		}
-		for row in c.execute("select distinct event_id from Windows_Logs").fetchall():
-			stats['event_id_totals'][str(row[0])] = c.execute("select count(*) from Windows_Logs where event_id = " + str(row[0]) + ";").fetchone()[0]
-		for row in c.execute("select distinct task_category from Windows_Logs").fetchall():
-			stats['task_category_totals'][row[0]] = {
-				"amount": c.execute("select count(*) from Windows_Logs where task_category = '" + row[0] + "';").fetchone()[0],
-				"successful": c.execute("select count(*) from Windows_Logs where task_category = '" + row[0] + "' AND Keywords LIKE '%Success%' ;").fetchone()[0],
-				"failed": {
-					"failed_count": c.execute("select count(*) from Windows_Logs where task_category = '" + row[0] + "' AND Keywords LIKE '%Failure%' ;").fetchone()[0],
-					"failed_ids": c.execute("select log_id from Windows_Logs where task_category = '" + row[0] + "' AND Keywords LIKE '%Failure%' ;").fetchall(),
-				}
-			}
 	elif log_type == "linux":
 		stats = {
 			"type_counts": {}
 		}
-		for row in c.execute("select distinct log_type from Linux_Logs").fetchall():
-			stats['type_counts'][row[0]] = c.execute("select count(*) from Linux_Logs where log_type = '" + row[0] + "';").fetchone()[0]
+		for row in c.execute("SELECT COUNT(*), log_type FROM Linux_Logs GROUP BY log_type;").fetchall():
+			stats['type_counts'][row[1]] = row[0]
 	else:
 		stats = {
-			"unique_ips": [],
-			"unique_ports": [],
+			"top_ten_external_ips_with_most_packets": [],
+			"top_ten_external_ips_with_most_bytes": [],
+			"top_ten_internal_ips_with_most_packets": [],
+			"top_ten_internal_ips_with_most_bytes": [],
+			"top_ten_source_ports": [],
+			"top_ten_destination_ports": [],
 			"total_bytes": c.execute("select sum(bytes) from Router_Logs").fetchone()[0],
 			"total_packets": c.execute("select sum(packets) from Router_Logs").fetchone()[0]
 		}
 		tmp = []
-		for row in c.execute("select source_address, destination_address from Router_Logs;").fetchall():
-			if row[0] not in tmp:
-				tmp.append(row[0])
-				stats['unique_ips'].append({
-					"ip": row[0],
-					"source_ip_count": c.execute("select count(*) from Router_Logs where source_address = ?", [row[0]]).fetchone()[0],
-					"destination_ip_count": c.execute("select count(*) from Router_Logs where destination_address = ?", [row[0]]).fetchone()[0],
-					"total_packets": c.execute("select sum(packets) from Router_Logs where destination_address = ? OR source_address = ?", [row[0], row[0]]).fetchone()[0],
-					"total_bytes": c.execute("select sum(bytes) from Router_Logs where destination_address = ? OR source_address = ?", [row[0], row[0]]).fetchone()[0]
-				})
-
-			if row[1] not in tmp:
-				tmp.append(row[1])
-				stats['unique_ips'].append({
+		for row in c.execute("SELECT sum(packets), source_address FROM router_logs WHERE source_address NOT LIKE '192.168.%' GROUP BY source_address ORDER BY sum(packets) DESC LIMIT 10;").fetchall():
+			stats['top_ten_external_ips_with_most_packets'].append(
+				{
 					"ip": row[1],
-					"source_ip_count": c.execute("select count(*) from Router_Logs where source_address = ?", [row[1]]).fetchone()[0],
-					"destination_ip_count": c.execute("select count(*) from Router_Logs where destination_address = ?", [row[1]]).fetchone()[0]
-				})
-				
+					"packets": row[0]
+				}
+			)
+		for row in c.execute("SELECT sum(bytes), source_address FROM router_logs WHERE source_address NOT LIKE '192.168.%' GROUP BY source_address ORDER BY sum(bytes) DESC LIMIT 10;").fetchall():
+			stats['top_ten_external_ips_with_most_bytes'].append(
+				{
+					"ip": row[1],
+					"bytes": row[0]
+				}
+			)
+		for row in c.execute("SELECT sum(packets), source_address FROM router_logs WHERE source_address LIKE '192.168.%' GROUP BY source_address ORDER BY sum(packets) DESC LIMIT 10").fetchall():
+			stats['top_ten_internal_ips_with_most_packets'].append({
+				"ip": row[1],
+				"packets": row[0]
+			})
+		for row in c.execute("SELECT sum(bytes), source_address FROM router_logs WHERE source_address LIKE '192.168.%' GROUP BY source_address ORDER BY sum(bytes) DESC LIMIT 10").fetchall():
+			stats['top_ten_internal_ips_with_most_bytes'].append({
+				"ip": row[1],
+				"bytes": row[0]
+			})
+			
+		for row in c.execute("SELECT COUNT(*), source_port FROM Router_Logs GROUP BY source_port ORDER BY COUNT(*) DESC LIMIT 10;").fetchall():
+			stats['top_ten_source_ports'].append({
+				'port': row[1],
+				'amount': row[0]
+			})
+		for row in c.execute("SELECT COUNT(*), destination_port FROM Router_Logs GROUP BY destination_port ORDER BY COUNT(*) DESC LIMIT 10;").fetchall():
+			stats['top_ten_destination_ports'].append({
+				'port': row[1],
+				'amount': row[0]
+			})
 
 	return flask.jsonify({'stats': stats})
 

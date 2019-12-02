@@ -43,12 +43,147 @@ Vue.component('records-chart', {
 })
 
 
+Vue.component('window-stats-chart', {
+	extends: VueChartJs.Pie,
+	data() {
+		return {
+			"stats": {}
+		}
+	},
+	mounted() {
+		axios.get('/api/stats/windows').then(response => {
+			this.stats = response.data.stats
+			this.renderChart({
+				labels: ['Succesful Audits', 'Failed Audits'],
+				datasets: [{
+					"label": "Audit Stats",
+					"data": [this.stats.successful_audits, this.stats.failed_audits],
+					"backgroundColor": ["green", "red"]
+				}]
+			}, {
+				responsive: true,
+				maintainAspectRatio: false,
+			})
+		})
+	}
+})
+
+Vue.component('router-bytes-chart', {
+	extends: VueChartJs.Bar,
+	data() {
+		return {
+			"stats": {}
+		}
+	},
+	mounted() {
+		axios.get('/api/stats/router').then(response => {
+			this.stats = response.data.stats
+			let dataset = []
+			for (i = 0; i < 10; i++) {
+				dataset.push({
+					"label": "[External] " + this.stats.top_ten_external_ips_with_most_bytes[i].ip,
+					"data": [this.stats.top_ten_external_ips_with_most_bytes[i].bytes],
+					"backgroundColor": "orange"
+				})
+			}
+			for (i = 0; i < 10; i++) {
+				dataset.push({
+					"label": "[Internal] " + this.stats.top_ten_internal_ips_with_most_bytes[i].ip,
+					"data": [this.stats.top_ten_internal_ips_with_most_bytes[i].bytes],
+					"backgroundColor": "blue"
+				})
+			  }
+			this.renderChart({
+				labels: ['Bytes'],
+				datasets: dataset
+			}, {
+				responsive: true,
+				maintainAspectRatio: false,
+			})
+		})
+	}
+})
+
+
+Vue.component('router-packets-chart', {
+	extends: VueChartJs.Bar,
+	data() {
+		return {
+			"stats": {}
+		}
+	},
+	mounted() {
+		axios.get('/api/stats/router').then(response => {
+			this.stats = response.data.stats
+			let dataset = []
+			for (i = 0; i < 10; i++) {
+				dataset.push({
+					"label": "[External] " + this.stats.top_ten_external_ips_with_most_packets[i].ip,
+					"data": [this.stats.top_ten_external_ips_with_most_packets[i].packets],
+					"backgroundColor": "orange"
+				})
+			}
+			for (i = 0; i < 10; i++) {
+				dataset.push({
+					"label": "[Internal] " + this.stats.top_ten_internal_ips_with_most_packets[i].ip,
+					"data": [this.stats.top_ten_internal_ips_with_most_packets[i].packets],
+					"backgroundColor": "blue"
+				})
+			  }
+			this.renderChart({
+				labels: ['Packets'],
+				datasets: dataset
+			}, {
+				responsive: true,
+				maintainAspectRatio: false,
+			})
+		})
+	}
+})
+
+Vue.component('router-ports-chart', {
+	extends: VueChartJs.Bar,
+	data() {
+		return {
+			"stats": {}
+		}
+	},
+	mounted() {
+		axios.get('/api/stats/router').then(response => {
+			this.stats = response.data.stats
+			let dataset = []
+			for (i = 0; i < 10; i++) {
+				dataset.push({
+					"label": "Source Port " + this.stats.top_ten_source_ports[i].port,
+					"data": [this.stats.top_ten_source_ports[i].amount],
+					"backgroundColor": dynamicColors()
+				})
+			}
+			for (i = 0; i < 10; i++){
+				dataset.push({
+					"label": "Destination Port " + this.stats.top_ten_destination_ports[i].port,
+					"data": [this.stats.top_ten_destination_ports[i].amount],
+					"backgroundColor": dynamicColors()
+				})
+			}
+			this.renderChart({
+				labels: ['Ports'],
+				datasets: dataset
+			}, {
+				responsive: true,
+				maintainAspectRatio: false,
+			})
+		})
+	}
+})
+
+
+
 Vue.component('linux-records-chart', {
 	extends: VueChartJs.Bar,
 	data() {
 		return {
-		  "stats": [],
-		  "loaded": false,
+		  "stats": {}
 		}
 	},
 	mounted() {
@@ -238,6 +373,7 @@ Vue.component('windows-logs', {
 			"logs": null,
 			"searchQuery": "",
 			"pages": 0,
+			"total_records": 0,
 			"page": 1
 		}
 	},
@@ -245,6 +381,7 @@ Vue.component('windows-logs', {
 		fetch: function () {
 			axios.get('/api/logs/windows?page=' + this.page + '&' + this.searchQuery).then(response => {
 				this.logs = response.data.data
+				this.total_records = response.data.total_records
 				this.pages = response.data.total_pages
 			})
 		},
@@ -287,6 +424,7 @@ Vue.component('linux-logs', {
 			"type": "AVC",
 			"pages": 0,
 			"page": 1,
+			"total_records": 0,
 			"searchQuery": "",
 		}
 	},
@@ -294,6 +432,7 @@ Vue.component('linux-logs', {
 		fetch: function () {
 			axios.get('/api/logs/linux?type=' + this.type + '&page=' + this.page + '&' + this.searchQuery).then(response => {
 				this.logs = response.data.data
+				this.total_records = response.data.total_records
 				this.pages = response.data.total_pages
 			})
 		},
@@ -328,6 +467,7 @@ Vue.component('router-logs', {
 			"logs": null,
 			"searchQuery": "",
 			"pages": 0,
+			"total_records": 0,
 			"page": 1
 		}
 	},
@@ -335,6 +475,7 @@ Vue.component('router-logs', {
 		fetch: function () {
 			axios.get('/api/logs/router?page=' + this.page + '&' + this.searchQuery).then(response => {
 				this.logs = response.data.data
+				this.total_records = response.data.total_records
 				this.pages = response.data.total_pages
 			})
 		},

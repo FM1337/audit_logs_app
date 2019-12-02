@@ -2,9 +2,18 @@
 {% block title %}Router Logs{% endblock title %}
 {% block content %}
 <h2>Router Logs</h2>
-
+<h3>Top 10 Packets total for Internal and External IPs</h3>
+<router-packets-chart v-cloak></router-packets-chart>
+<hr>
+<h3>Top 10 Bytes total for Internal and External IPs</h3>
+<router-bytes-chart v-cloak></router-bytes-chart>
+<hr>
+<h3>Top 10 Source/Destination Ports</h3>
+<router-ports-chart v-cloak></router-ports-chart>
+<hr>
 <router-logs inline-template v-cloak class="router-logs">
 	<div>
+	<h3>Search</h3>
 		<form class="form">
 		<div class="form-group">
 			<label for="sip">Source IP</label>
@@ -52,6 +61,7 @@
 		</div>
 		<button @click="search" class="btn btn-success" type="button">Search</button>
 		</form>
+		<hr>
 				<nav>
 		<paginate
 			:page-count="pages"
@@ -69,6 +79,7 @@
 			>
 			</paginate>
 		</nav>
+		<h3>Router Logs Table. ((total_records)) Logs</h3>
 		<table class="table table-responsive">
 			<thead>
 				<tr>

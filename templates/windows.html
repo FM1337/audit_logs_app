@@ -2,9 +2,12 @@
 {% block title %}Windows Logs{% endblock title %}
 {% block content %}
 <h2>Windows Logs</h2>
-
+<h3>Successful &amp; Failed Audit Attempts Chart</h3>
+<window-stats-chart v-cloak></window-stats-chart>
+<hr>
 <windows-logs inline-template v-cloak class="router-logs">
 	<div>
+		<h3>Search</h3>
 		<form class="form">
 		<div class="form-group">
 			<label for="keywords">Keywords</label>
@@ -49,6 +52,7 @@
 			>
 			</paginate>
 		</nav>
+		<h3>Windows Logs Table. ((total_records)) Logs</h3>
 		<table class="table table-responsive">
 			<thead>
 				<tr>

@@ -2,6 +2,7 @@
 {% block title %}Linux Logs{% endblock title %}
 {% block content %}
 <h2>Linux Logs</h2>
+<h3>Linux Records Stats</h3>
 <linux-records-chart v-cloak></linux-records-chart>
 <linux-logs inline-template v-cloak class="router-logs">
 	<div>
@@ -22,6 +23,7 @@
 			>
 			</paginate>
 		</nav>
+		<h3>Search</h3>
 		<form class="form">
 				<div class="form-group">
 					<label for="date_time">Date Time</label>
@@ -33,6 +35,7 @@
 				</div>
 				<button @click="search" class="btn btn-success" type="button">Search</button>
 				</form>
+			<h3>Linux Logs Table: ((type)) Logs. ((total_records)) Logs</h3>
 		<form class="form">
 				<div class="form-group">
 					<label for="log_type_filter">Select log types to show</label>
